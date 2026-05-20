@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S7 Analytics — SQL Генератор</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+
+<div class="bg-decoration">
+    <div class="bg-blob"></div>
+    <div class="bg-blob"></div>
+    <div class="bg-blob"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <div class="logo-s7">
+                <svg width="60" height="60" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M80 40.0086C80 62.1069 62.104 80 40.0121 80C17.9175 80 0 62.1069 0 40.0086C0 17.9104 17.9175 0 40.0121 0C62.1043 0 80 17.9104 80 40.0086ZM23.6225 20.7267C26.5653 19.6342 30.6307 19.2879 36.8974 19.2879V19.2881H42.5505L39.7844 26.2049H35.9107C31.7505 26.2049 29.0793 26.2175 27.6376 26.6959C26.2349 27.1307 25.1986 27.6575 24.6335 28.4845C24.1112 29.1534 23.9349 30.0665 23.9349 30.8589C23.9349 31.689 24.0258 32.4747 24.8474 33.5304C25.8611 34.5418 27.5301 35.8481 30.8053 37.8627C37.3347 41.9368 39.2662 45.1708 39.2662 49.426C39.2662 56.3509 32.7354 62.9639 21.7895 62.9639C18.4991 62.9639 13.9065 62.482 11.9714 61.8647L10.9549 61.5658C11.3513 60.2481 12.6512 56.6167 13.2239 55.0815L14.2504 55.3403C16.4017 55.8667 19.7684 56.176 22.0037 56.176C28.4079 56.176 30.8968 53.2845 30.8968 50.7441C30.8968 48.423 29.6292 47.15 23.2749 43.298C17.3196 39.6168 15.2618 36.4163 15.2618 31.9969C15.2618 26.6908 18.6771 22.6532 23.6225 20.7267ZM46.7062 19.2879H66.1721C67.0872 19.2879 67.2623 19.9346 66.9098 20.6386C65.637 23.7934 53.6275 53.8838 53.6275 53.8838H45.5994C45.5994 53.8838 55.0852 29.7114 56.6591 26.1109C56.2951 26.1109 55.9596 26.1213 55.5126 26.1352C54.6205 26.1629 53.2844 26.2043 50.3921 26.2043H43.9399L46.7062 19.2879Z"
+                          fill="#C4D600"/>
+                </svg>
+            </div>
+            <div class="logo-divider"></div>
+            <span class="logo-text">Analytic <span>Service</span></span>
+        </div>
+        <div class="header-right">
+            <div class="agent-status checking" id="agentStatus">
+                <span class="status-dot"></span>
+                <span id="agentStatusText">Проверка...</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Аналитика на <span class="accent">SQL</span></h1>
+        <p>Опишите, какие данные вам нужны — AI сгенерирует и выполнит SQL-запрос за секунды</p>
+    </section>
+
+    <!-- Agent Down Banner -->
+    <div class="agent-banner" id="agentBanner">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <span>AI-агент сейчас недоступен. Генерация запросов может не работать. Вы всё равно можете попробовать.</span>
+    </div>
+
+    <!-- Main Card -->
+    <div class="main-card">
+        <div class="card-label">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+            </svg>
+            Ваш запрос
+        </div>
+
+        <div class="prompt-wrapper">
+                <textarea
+                        class="prompt-textarea"
+                        id="promptInput"
+                        placeholder="Например: Выведи мне какая была автоматизация по тематикам чата с января 2026 года по апрель 2026 года, по месяцам в %"
+                        maxlength="2000"
+                ></textarea>
+            <span class="char-count" id="charCount">0 / 2000</span>
+        </div>
+
+        <div class="suggestions">
+            <button class="suggestion-chip" onclick="useSuggestion(this)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Выведи мне какая была автоматизация общая с ... по ..., по месяцам в %
+            </button>
+        </div>
+
+
+        <div class="suggestions">
+            <button class="suggestion-chip" onclick="useSuggestion(this)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Выведи мне сколько клиентов каждый месяц обращалось к боту, чтобы поменять билет с января 2026 по апрель 2026
+            </button>
+        </div>
+
+        <button class="btn-generate" id="btnGenerate" onclick="generateSQL()">
+            <span id="btnText">Сгенерировать запрос</span>
+            <svg id="btnArrow" viewBox="0 0 24 24">
+                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+            </svg>
+            <div class="spinner" id="btnSpinner"></div>
+        </button>
+
+        <!-- SQL Preview -->
+        <div class="sql-section" id="sqlSection">
+            <div class="sql-card">
+                <div class="sql-card-header">
+                    <div class="sql-card-header-left">
+                        <div class="sql-dots">
+                            <div class="sql-dot"></div>
+                            <div class="sql-dot"></div>
+                            <div class="sql-dot"></div>
+                        </div>
+                        <span class="sql-card-title">Сгенерированный SQL-запрос</span>
+                    </div>
+                    <button class="btn-copy" onclick="copySQL()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                        Копировать
+                    </button>
+                </div>
+                <div class="sql-code-wrapper editable">
+                    <div
+                            id="sqlEditor"
+                            class="sql-editor"
+                            contenteditable="true"
+                            spellcheck="false"
+                            aria-label="Редактор SQL-запроса"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- Confirm -->
+            <div class="confirm-section" id="confirmSection">
+                <div class="confirm-info">
+                    <div class="confirm-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <div class="confirm-text">
+                        <h4>Запрос готов к выполнению</h4>
+                        <p>Внимательно проверьте SQL и подтвердите выполнение</p>
+                    </div>
+                </div>
+                <div class="confirm-actions">
+                    <button class="btn-confirm secondary" onclick="cancelExecution()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                        Отмена
+                    </button>
+                    <button class="btn-confirm primary" id="btnExecute" onclick="executeSQL()" disabled>
+                        <span id="btnExecuteText">Выполнить (5)</span>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Executing -->
+            <div class="executing-overlay" id="executingOverlay">
+                <div class="executing-spinner">
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                </div>
+                <div class="executing-text">Выполняем запрос...</div>
+                <div class="executing-sub">Обработка данных может занять несколько секунд</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-section" id="resultsSection">
+        <div class="results-card">
+            <div class="results-header">
+                <div class="results-header-left">
+                    <div class="results-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                        </svg>
+                    </div>
+                    <div class="results-title">
+                        <h3>Результаты запроса</h3>
+                        <p id="resultsMeta">—</p>
+                    </div>
+                </div>
+                <div class="results-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statRows">0</div>
+                        <div class="stat-label">Строк</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statCols">0</div>
+                        <div class="stat-label">Колонок</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statTime">0s</div>
+                        <div class="stat-label">Время</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-wrapper" id="tableWrapper">
+                <table class="data-table" id="dataTable">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <span class="table-footer-text" id="tableFooterText">Показано <strong>0</strong> записей</span>
+                <button class="btn-export" onclick="exportCSV()">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Экспорт CSV
+                </button>
+            </div>
+        </div>
+
+        <button class="btn-new-query" onclick="newQuery()">
+            <svg viewBox="0 0 24 24">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            Новый запрос
+        </button>
+    </div>
+
+    <!-- History -->
+    <section class="history-section" id="historySection">
+        <div class="history-title">
+            <svg viewBox="0 0 24 24">
+                <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28-2.54L12 8z"/>
+            </svg>
+            История запросов
+            <!-- 👇 Новая кнопка очистки -->
+            <button class="btn-clear-history" id="btnClearHistory" onclick="clearHistory()" title="Очистить историю">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+    </section>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="/static/js/main.js" defer></script>
+</body>
+</html>
