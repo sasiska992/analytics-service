@@ -1,0 +1,43 @@
+﻿# Количество реплик пода
+replicaCount: 1
+
+# Настройки образа Docker
+image:
+  repository: analytic-service-mock
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Имя сервиса
+service:
+  type: ClusterIP
+  port: 8000
+
+# Настройки Ingress (внешний доступ)
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: analytic.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Ресурсы пода
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Node Selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
